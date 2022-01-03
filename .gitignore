@@ -1,0 +1,14 @@
+# Project exclude paths
+/.gradle/
+/cloud-consumer-order-zookeeper-8010/build/
+/cloud-consumer-order-zookeeper-8010/build/classes/java/main/
+/cloud-hystrix-dashboard-9001/build/
+/cloud-hystrix-dashboard-9001/build/classes/java/main/
+/cloud-provider-payment-8002/build/
+/cloud-provider-payment-8002/build/classes/java/main/
+/cloud-provider-payment-hystrix-8001/build/
+/cloud-provider-payment-hystrix-8001/build/classes/java/main/
+**/logs
+**/log
+.idea
+/nacos-server-2.0.3

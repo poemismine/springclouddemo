@@ -1,0 +1,244 @@
+buildscript {
+    ext {
+        springBootVersion = '2.6.1'
+        asciidoctorVersion = "2.4.0"
+    }
+    repositories {
+        maven { url "https://maven.aliyun.com/nexus/content/groups/public/" }
+        maven { url "https://plugins.gradle.org/m2/" }
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.asciidoctor:asciidoctor-gradle-jvm:${asciidoctorVersion}"
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+
+allprojects {
+    group "org.example"
+    version "1.0-SNAPSHOT"
+}
+
+subprojects {
+    apply plugin: "java"
+    apply plugin: "org.springframework.boot"
+    apply plugin: "io.spring.dependency-management"
+    apply plugin: "org.asciidoctor.convert"
+
+    sourceCompatibility = 1.11
+    targetCompatibility = 1.11
+
+    [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
+
+    repositories {
+        mavenLocal()
+        maven { url "https://maven.aliyun.com/nexus/content/groups/public/" }
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
+        maven { url "https://repo1.maven.org/maven2" }
+        maven { url "https://jitpack.io" }
+        mavenCentral()
+    }
+
+    configurations {
+        compileOnly {
+            extendsFrom annotationProcessor
+        }
+        //        移除spring boot 默认logger依赖
+        all*.exclude module: "spring-boot-starter-logging"
+    }
+
+    ext {
+        springBootVersion = "2.6.1"
+        junitVersion = "4.13.2"
+        lombokVersion = "1.18.22"
+        set('snippetsDir', file("build/generated-snippets"))
+        restdocsMockmvcVersion = "2.0.5.RELEASE"
+        mybatisVersion = "2.2.0"
+        mybatisPlusVersion = "3.4.3.4"
+        mysqlConnectorJavaVersion = "5.1.40"
+        hutoolAllVersion = "5.7.18"
+        springCloudVersion = "3.1.0"
+        netflixHystrixVersion = "2.2.10.RELEASE"
+        hystrixDashboardVersion = "2.2.10.RELEASE"
+        alibabaVersion = "2.2.7.RELEASE"
+    }
+
+    dependencies {
+        implementation "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
+        implementation "org.springframework.boot:spring-boot-starter-actuator:$springBootVersion"
+        implementation "org.springframework.boot:spring-boot-starter-data-jdbc:$springBootVersion"
+        implementation "org.mybatis.spring.boot:mybatis-spring-boot-starter:$mybatisVersion"
+//        implementation "org.springframework.boot:spring-boot-starter-thymeleaf:$springBootVersion"
+        implementation "org.springframework.boot:spring-boot-starter:$springBootVersion"
+        implementation "org.springframework.boot:spring-boot-starter-log4j2:$springBootVersion"
+        annotationProcessor "org.projectlombok:lombok:$lombokVersion"
+        compileOnly "org.projectlombok:lombok:$lombokVersion"
+        //热部署插件
+        compileOnly "org.springframework.boot:spring-boot-devtools:$springBootVersion"
+        //配置提示插件
+        implementation "org.springframework.restdocs:spring-restdocs-mockmvc:$restdocsMockmvcVersion"
+        implementation "mysql:mysql-connector-java:$mysqlConnectorJavaVersion"
+        annotationProcessor "org.springframework.boot:spring-boot-configuration-processor:$springBootVersion"
+
+        // 单元测试
+        testImplementation "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+        testImplementation "junit:junit:$junitVersion"
+    }
+
+    test {
+        outputs.dir snippetsDir
+        useJUnitPlatform()
+    }
+
+    asciidoctor {
+        inputs.dir snippetsDir
+        dependsOn test
+    }
+}
+
+project(":cloud-api-common") {
+    dependencies {
+        implementation "cn.hutool:hutool-all:$hutoolAllVersion"
+    }
+}
+
+project(":cloud-provider-payment-8001") {
+    dependencies {
+        implementation "org.springframework.cloud:spring-cloud-starter-netflix-eureka-client:$springCloudVersion"
+        implementation project(":cloud-api-common")
+    }
+}
+
+project(":cloud-provider-payment-hystrix-8001") {
+    dependencies {
+        implementation "org.springframework.cloud:spring-cloud-starter-netflix-eureka-client:$springCloudVersion"
+        implementation "org.springframework.cloud:spring-cloud-starter-netflix-hystrix:$netflixHystrixVersion"
+        implementation project(":cloud-api-common")
+    }
+}
+
+project(":cloud-provider-payment-8002") {
+    dependencies {
+        implementation "org.springframework.cloud:spring-cloud-starter-netflix-eureka-client:$springCloudVersion"
+        implementation project(":cloud-api-common")
+    }
+}
+
+project(":cloud-provider-payment-zookeeper-8003") {
+    dependencies {
+        implementation "org.springframework.cloud:spring-cloud-starter-zookeeper-discovery:$springCloudVersion"
+        implementation project(":cloud-api-common")
+    }
+}
+
+project(":cloud-consumer-order-80") {
+    dependencies {
+        implementation "org.springframework.cloud:spring-cloud-starter-netflix-eureka-client:$springCloudVersion"
+        implementation project(":cloud-api-common")
+    }
+}
+
+project(":cloud-consumer-order-openFeign-hystrix-80") {
+    dependencies {
+        implementation "org.springframework.cloud:spring-cloud-starter-netflix-eureka-client:$springCloudVersion"
+        implementation "org.springframework.cloud:spring-cloud-starter-openfeign:$springCloudVersion"
+        implementation "org.springframework.cloud:spring-cloud-starter-netflix-hystrix:$netflixHystrixVersion"
+        implementation project(":cloud-api-common")
+    }
+}
+
+project(":cloud-consumer-order-zookeeper-8010") {
+    dependencies {
+        implementation "org.springframework.cloud:spring-cloud-starter-zookeeper-discovery:$springCloudVersion"
+        implementation project(":cloud-api-common")
+    }
+}
+
+project(":cloud-consumer-order-openFeign-80") {
+    dependencies {
+        implementation "org.springframework.cloud:spring-cloud-starter-netflix-eureka-client:$springCloudVersion"
+        implementation "org.springframework.cloud:spring-cloud-starter-openfeign:$springCloudVersion"
+        implementation project(":cloud-api-common")
+    }
+}
+
+project(":cloud-eureka-server-7001") {
+    dependencies {
+        implementation "org.springframework.cloud:spring-cloud-starter-netflix-eureka-server:$springCloudVersion"
+        implementation project(":cloud-api-common")
+    }
+}
+
+project(":cloud-eureka-server-7002") {
+    dependencies {
+        implementation "org.springframework.cloud:spring-cloud-starter-netflix-eureka-server:$springCloudVersion"
+        implementation project(":cloud-api-common")
+    }
+}
+
+project(":cloud-hystrix-dashboard-9001") {
+    dependencies {
+        implementation("org.springframework.cloud:spring-cloud-starter-netflix-hystrix-dashboard:$hystrixDashboardVersion")
+//                {
+//            exclude group: "org.springframework.cloud", module: "spring-cloud-starter"
+//        }
+        implementation "org.springframework.cloud:spring-cloud-starter:$springCloudVersion"
+    }
+}
+
+project(":cloud-gateway-9527") {
+    dependencies {
+        implementation "org.springframework.cloud:spring-cloud-starter-netflix-eureka-server:$springCloudVersion"
+        implementation "org.springframework.cloud:spring-cloud-starter-gateway:$springCloudVersion"
+    }
+}
+
+project(":cloud-config-center-3344") {
+    dependencies {
+        implementation "org.springframework.cloud:spring-cloud-starter-netflix-eureka-server:$springCloudVersion"
+        implementation "org.springframework.cloud:spring-cloud-config-server:$springCloudVersion"
+    }
+}
+
+project(":cloud-config-client-3355") {
+    dependencies {
+        implementation "org.springframework.cloud:spring-cloud-starter-netflix-eureka-server:$springCloudVersion"
+        implementation "org.springframework.cloud:spring-cloud-starter-config:$springCloudVersion"
+        implementation "org.springframework.cloud:spring-cloud-starter-bootstrap:$springCloudVersion"
+    }
+}
+
+project(":cloud-alibaba-provider-9001") {
+    dependencies {
+        implementation "com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-config:$alibabaVersion"
+        implementation "com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery:$alibabaVersion"
+        implementation "org.springframework.cloud:spring-cloud-starter-bootstrap:$springCloudVersion"
+    }
+}
+
+project(":cloud-alibaba-provider-9002") {
+    dependencies {
+        implementation "com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-config:$alibabaVersion"
+        implementation "com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery:$alibabaVersion"
+        implementation "org.springframework.cloud:spring-cloud-starter-bootstrap:$springCloudVersion"
+    }
+}
+
+project(":cloud-alibaba-consumer-83") {
+    dependencies {
+        implementation "com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-config:$alibabaVersion"
+        implementation "com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery:$alibabaVersion"
+//        implementation "org.springframework.cloud:spring-cloud-starter-bootstrap:$springCloudVersion"
+        implementation "org.springframework.cloud:spring-cloud-starter:$springCloudVersion"
+//        implementation "org.springframework.cloud:spring-cloud-dependencies:2021.0.0"
+    }
+}
+
+project(":cloud-alibaba-nacos-config-client-3344") {
+    dependencies {
+        implementation "com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-config:$alibabaVersion"
+        implementation "com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery:$alibabaVersion"
+        implementation "org.springframework.cloud:spring-cloud-starter:$springCloudVersion"
+        implementation "org.springframework.cloud:spring-cloud-starter-bootstrap:$springCloudVersion"
+    }
+}

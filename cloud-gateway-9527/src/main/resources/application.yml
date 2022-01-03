@@ -1,0 +1,35 @@
+server:
+  port: 9527
+
+spring:
+  application:
+    name: cloud-gateway
+  main:
+    web-application-type: reactive
+  cloud:
+    gateway:
+      routes:
+        - id: payment_route
+          uri: http://127.0.0.1:8001
+          predicates:
+          - Path=/payment/get/**
+
+        - id: payment_route2
+          uri: http://127.0.0.1:8001
+          predicates:
+          - Path=/payment/discovery/**
+
+        - id: payment_loadbalance_route3
+          uri: lb://CLOUD-PROVIDER-PAYMENT
+          predicates:
+          - Path=/payment/openfeign/timeout
+
+eureka:
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://eureka7001.com:7001/eureka/,http://eureka7002.com:7002/eureka/
+  instance:
+    instance-id: cloudGateway9527
+    prefer-ip-address: true

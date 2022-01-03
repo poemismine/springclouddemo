@@ -1,0 +1,26 @@
+server:
+    port: 8001
+
+spring:
+    application:
+        name: cloud-provider-payment-hystrix
+    datasource:
+        driver-class-name: com.mysql.jdbc.Driver
+        password: 1
+        type: com.zaxxer.hikari.HikariDataSource
+        url: jdbc:mysql://127.0.0.1:3306/Test?useUnicode=true&characterEncoding=utf-8&useSSL=false
+        username: root
+
+mybatis:
+    mapper-locations: classpath:mapper/*.xml
+    type-aliases-package: com.example.entities
+
+eureka:
+    client:
+        fetch-registry: true
+        register-with-eureka: true
+        service-url:
+            defaultZone: http://eureka7001.com:7001/eureka/,http://eureka7002.com:7002/eureka/
+    instance:
+        instance-id: paymentHystrix8001
+        prefer-ip-address: true

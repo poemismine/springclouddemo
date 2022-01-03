@@ -1,0 +1,29 @@
+spring:
+  cloud:
+    config:
+      #      uri: http://127.0.0.1:3344
+      name: config  #文件明
+      profile: dev  #环境后缀
+      label: main   #分支名
+      discovery:
+        enabled: true
+        service-id: CLOUD-CONFIG-CENTER
+
+management:
+  endpoint:
+    shutdown:
+      enabled: false
+  endpoints:  #配置客户端自动刷新
+    web:
+      exposure:
+        include: "*"
+
+eureka:
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://eureka7001.com:7001/eureka/,http://eureka7002.com:7002/eureka/
+  instance:
+    instance-id: configCenter3355
+    prefer-ip-address: true

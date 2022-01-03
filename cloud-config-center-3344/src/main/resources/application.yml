@@ -1,0 +1,27 @@
+server:
+  port: 3344
+
+spring:
+  application:
+    name: cloud-config-center
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/poemismine/SpringCloudConfig
+          username:
+          password:
+      label: main
+#          uri: https://github.com/spring-cloud-samples/config-repo
+#          username: trolley
+#          password: strongpassword
+
+eureka:
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://eureka7001.com:7001/eureka/,http://eureka7002.com:7002/eureka/
+  instance:
+    instance-id: configCenter3344
+    prefer-ip-address: true

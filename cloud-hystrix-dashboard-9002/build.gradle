@@ -1,0 +1,72 @@
+buildscript {
+    ext {
+        springBootVersion = "2.3.12.RELEASE"
+        asciidoctorVersion = "2.4.0"
+    }
+    repositories {
+        maven { url "https://maven.aliyun.com/nexus/content/groups/public/" }
+        maven { url "https://plugins.gradle.org/m2/" }
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.asciidoctor:asciidoctor-gradle-jvm:${asciidoctorVersion}"
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+
+
+group "org.example"
+version "1.0-SNAPSHOT"
+
+
+apply plugin: "java"
+apply plugin: "org.springframework.boot"
+apply plugin: "io.spring.dependency-management"
+apply plugin: "org.asciidoctor.convert"
+
+sourceCompatibility = 1.11
+targetCompatibility = 1.11
+
+[compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
+
+repositories {
+    mavenLocal()
+    maven { url "https://maven.aliyun.com/nexus/content/groups/public/" }
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
+    maven { url "https://repo1.maven.org/maven2" }
+    maven { url "https://jitpack.io" }
+    mavenCentral()
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+    //        移除spring boot 默认logger依赖
+    all*.exclude module: "spring-boot-starter-logging"
+}
+
+ext {
+    springBootVersion = "2.3.12.RELEASE"
+//    junitVersion = "4.13.2"
+//    lombokVersion = "1.18.22"
+    set('snippetsDir', file("build/generated-snippets"))
+    springCloudVersion = "2.2.9.RELEASE"
+    hystrixDashboardVersion = "2.2.10.RELEASE"
+}
+
+dependencies {
+    implementation "org.springframework.cloud:spring-cloud-starter-netflix-hystrix-dashboard:$hystrixDashboardVersion"
+    implementation "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
+    implementation "org.springframework.boot:spring-boot-starter-actuator:$springBootVersion"
+    implementation "org.springframework.boot:spring-boot-starter-log4j2:$springBootVersion"
+    compileOnly "org.projectlombok:lombok"
+    developmentOnly "org.springframework.boot:spring-boot-devtools:$springBootVersion"
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor:$springBootVersion"
+    annotationProcessor "org.projectlombok:lombok"
+    testImplementation "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+}
+
+test {
+    useJUnitPlatform()
+}
